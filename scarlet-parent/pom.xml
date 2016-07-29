@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>hu.scarlet</groupId>
+	<artifactId>scarlet-parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>parent</name>
+	<description>Scarlet project with Spring Boot</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.3.5.RELEASE</version>
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java.version>1.8</java.version>
+		<scarlet-pers-api.version>0.0.1-SNAPSHOT</scarlet-pers-api.version>
+		<scarlet-pers-mongo.version>0.0.1-SNAPSHOT</scarlet-pers-mongo.version>
+		<org.mapstruct.version>1.1.0.Beta1</org.mapstruct.version>
+		<slf4j.version>1.7.21</slf4j.version>
+	</properties>
+	
+	<dependencyManagement>
+		<dependencies>
+		    <dependency>
+		        <groupId>org.mapstruct</groupId>
+		        <artifactId>mapstruct</artifactId> <!-- use mapstruct-jdk8 for Java 8 or higher -->
+		        <version>${org.mapstruct.version}</version>
+		    </dependency>
+			<dependency>
+				<groupId>hu.scarlet</groupId>
+				<artifactId>scarlet-pers-api</artifactId>
+				<version>${scarlet-pers-api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>hu.scarlet</groupId>
+				<artifactId>scarlet-pers-mongo</artifactId>
+				<version>${scarlet-pers-mongo.version}</version>
+			</dependency>
+			<dependency>
+			    <groupId>org.slf4j</groupId>
+			    <artifactId>slf4j-api</artifactId>
+			    <version>${slf4j.version}</version>
+			</dependency>
+		</dependencies>	
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+	
+	<modules>
+		<module>../scarlet-pers-mongo</module>
+		<module>../scarlet-pers-api</module>
+		<module>../scarlet-rest-services</module>
+	</modules>
+</project>
