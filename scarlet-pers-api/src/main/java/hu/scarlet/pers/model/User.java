@@ -1,5 +1,7 @@
 package hu.scarlet.pers.model;
 
+import java.util.List;
+
 /**
  * 
  * @author jmalyik
@@ -42,4 +44,8 @@ public interface User {
 	public boolean isCompany();
 	
 	public void setCompany(boolean company);
+
+	public List<String> getRoles();
+
+	public void setRoles(List<String> roles);
 }

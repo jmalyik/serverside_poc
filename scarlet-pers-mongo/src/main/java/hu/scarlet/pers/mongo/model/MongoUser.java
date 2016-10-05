@@ -1,5 +1,7 @@
 package hu.scarlet.pers.mongo.model;
 
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,6 +25,7 @@ public class MongoUser implements User {
 	private boolean enabled;
 	private boolean deleted;
 	private boolean company;
+	private List<String> roles;
 
 	@Override
 	public String getId() {
@@ -109,5 +112,14 @@ public class MongoUser implements User {
 		return "MongoUser [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", emailAddress="
 				+ emailAddress + ", password=" + password + ", enabled=" + enabled + ", deleted=" + deleted
 				+ ", company=" + company + "]";
+	}
+
+	@Override
+	public List<String> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<String> roles) {
+		this.roles = roles;
 	}
 }
