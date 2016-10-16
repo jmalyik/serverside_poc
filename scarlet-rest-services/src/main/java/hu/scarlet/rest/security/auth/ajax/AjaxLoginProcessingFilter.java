@@ -2,6 +2,7 @@ package hu.scarlet.rest.security.auth.ajax;
 
 
 import java.io.IOException;
+import java.util.Locale;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -12,6 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +25,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+import hu.scarlet.rest.config.RestMessages;
 import hu.scarlet.rest.security.AuthMethodNotSupportedException;
 import hu.scarlet.rest.util.WebUtil;
 
@@ -40,6 +44,9 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
+	@Autowired
+	private RestMessages restMessages;
+
 	public AjaxLoginProcessingFilter(String defaultProcessUrl, AuthenticationSuccessHandler successHandler,
 			AuthenticationFailureHandler failureHandler) {
 		super(defaultProcessUrl);
@@ -50,21 +57,23 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException, IOException, ServletException {
+		Locale locale = LocaleContextHolder.getLocale();
 		if (!HttpMethod.POST.name().equals(request.getMethod()) || !WebUtil.isAjax(request)) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Authentication method not supported. Request method: " + request.getMethod());
 			}
-			throw new AuthMethodNotSupportedException("Authentication method not supported");
+			throw new AuthMethodNotSupportedException(restMessages.getBundle().getMessage("exceptions.authMethodNotSupported", null, locale ));
 		}
-
+		
 		LoginRequest loginRequest = objectMapper.readValue(request.getReader(), LoginRequest.class);
 
 		logger.debug("Trying to login: {}", loginRequest);
 
 		if (StringUtils.isBlank(loginRequest.getEmailAddress()) || StringUtils.isBlank(loginRequest.getPassword())) {
-			throw new AuthenticationServiceException("EmailAddress or Password not provided");
+			throw new AuthenticationServiceException(
+					restMessages.getBundle().getMessage("exceptions.emailAddressOrPasswordNotProvided", null, locale));
 		}
-
+		
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
 				loginRequest.getEmailAddress(),
 				loginRequest.getPassword());

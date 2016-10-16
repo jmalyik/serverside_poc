@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.junit.Before;
@@ -36,6 +37,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import hu.scarlet.pers.model.User;
 import hu.scarlet.pers.model.UserService;
+import hu.scarlet.rest.config.RestMessages;
 import hu.scarlet.rest.config.ScarletRestApplication;
 import hu.scarlet.rest.config.SecurityConfig;
 import hu.scarlet.rest.security.JwtSettings;
@@ -154,6 +156,14 @@ public class ScarletRestServicesApplicationTests extends TestCase {
 		}
 	}
 
+	@Autowired
+	private RestMessages restMessages;
+
+	@Test
+	public void testLocaleBundle() {
+		String msg = restMessages.getBundle().getMessage("userCreated", new Object[] { "magic" }, Locale.ENGLISH);
+		assertEquals("User magic created.", msg);
+	}
 
 	public void test3GenerateJWTKey() {
 		Map<String, Object> map = new HashMap<>();

@@ -28,7 +28,8 @@ public class MongoConfig {
 	@Autowired
 	private Environment env;
 
-	public @Bean MongoDbFactory mongoDbFactory() throws Exception {
+	@Bean
+	public MongoDbFactory mongoDbFactory() throws Exception {
 		// TODO: when the db will be switched to the authenticated version
 		// this creds shall be introduced
 		// UserCredentials userCredentials = new UserCredentials("joe",
@@ -40,7 +41,8 @@ public class MongoConfig {
 		return new SimpleMongoDbFactory(new MongoClient(host, port), db);// , userCredentials);
 	}
 
-	public @Bean MongoTemplate mongoTemplate() throws Exception {
+	@Bean
+	public MongoTemplate mongoTemplate() throws Exception {
 		return new MongoTemplate(mongoDbFactory());
 	}
 	
