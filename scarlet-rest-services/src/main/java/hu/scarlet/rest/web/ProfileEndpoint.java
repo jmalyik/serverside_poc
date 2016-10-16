@@ -1,7 +1,7 @@
 package hu.scarlet.rest.web;
 
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hu.scarlet.rest.config.SecurityConfig;
 import hu.scarlet.rest.security.UserContext;
@@ -26,8 +24,8 @@ import hu.scarlet.rest.security.token.JwtAuthenticationToken;
  */
 @RestController("profileEndpoint")
 public class ProfileEndpoint {
-	@Autowired
-	private ObjectMapper objectMapper;
+
+	private ObjectMapper objectMapper = new ObjectMapper();
 
 	@RequestMapping(value = SecurityConfig.PROFILE_ENTRY_POINT, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public ResponseEntity<String> get(JwtAuthenticationToken token) throws Exception {

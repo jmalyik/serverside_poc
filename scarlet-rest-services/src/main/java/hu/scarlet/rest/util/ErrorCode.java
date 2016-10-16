@@ -1,6 +1,6 @@
 package hu.scarlet.rest.util;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import org.codehaus.jackson.annotate.JsonValue;
 
 /**
  * Enumeration of REST Error types.

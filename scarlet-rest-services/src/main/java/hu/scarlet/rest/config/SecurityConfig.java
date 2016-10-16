@@ -18,8 +18,6 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import hu.scarlet.rest.security.RestAuthenticationEntryPoint;
 import hu.scarlet.rest.security.ScarletRestUserDetailsService;
 import hu.scarlet.rest.security.auth.JwtAuthenticationProvider;
@@ -41,7 +39,7 @@ import hu.scarlet.rest.security.token.TokenExtractor;
  *
  */
 @Configuration
-@ComponentScan(basePackages = { "hu.scarlet.config", "hu.scarlet.rest" })
+@ComponentScan(basePackages = { "hu.scarlet.config", "hu.scarlet.rest.security", "hu.scarlet.rest.web" })
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -55,10 +53,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	public static final String JWT_TOKEN_HEADER_PARAM = "X-Authorization";
 
-	public static final String SIGNUP_ENTRY_POINT = "/api/auth/signup";
+	public static final String SIGNUP_ENTRY_POINT = "/auth/signup";
 	public static final String FORM_BASED_LOGIN_ENTRY_POINT = "/api/auth/login";
 	public static final String TOKEN_BASED_AUTH_ENTRY_POINT = "/api/**";
-	public static final String TOKEN_REFRESH_ENTRY_POINT = "/api/auth/token";
+	public static final String TOKEN_REFRESH_ENTRY_POINT = "/auth/token";
 	public static final String PROFILE_ENTRY_POINT = "/api/me";
 
 	@Autowired
@@ -78,13 +76,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private AuthenticationManager authenticationManager;
 
-	@Autowired
-	private ObjectMapper objectMapper;
-
 	@Bean
 	protected AjaxLoginProcessingFilter buildAjaxLoginProcessingFilter() throws Exception {
 		AjaxLoginProcessingFilter filter = new AjaxLoginProcessingFilter(FORM_BASED_LOGIN_ENTRY_POINT, successHandler,
-				failureHandler, objectMapper);
+				failureHandler);
 		filter.setAuthenticationManager(this.authenticationManager);
 		return filter;
 	}
@@ -122,15 +117,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-				.and().authorizeRequests().antMatchers(FORM_BASED_LOGIN_ENTRY_POINT).permitAll() // Login
-																									// end-point
-				.antMatchers(TOKEN_REFRESH_ENTRY_POINT).permitAll() // Token
-																	// refresh
-																	// end-point
-				.antMatchers(SIGNUP_ENTRY_POINT).permitAll()
-				.and().authorizeRequests().antMatchers(TOKEN_BASED_AUTH_ENTRY_POINT).authenticated() // Protected
-																										// API
-																										// End-points
+				.and().authorizeRequests().antMatchers(FORM_BASED_LOGIN_ENTRY_POINT).permitAll()
+				// Login end-point
+				.antMatchers(TOKEN_REFRESH_ENTRY_POINT, SIGNUP_ENTRY_POINT).permitAll()
+				// Token refresh and signup end-points
+				.and().authorizeRequests().antMatchers(TOKEN_BASED_AUTH_ENTRY_POINT).authenticated()
+				// Protected API protected end-points
 				.and().addFilterBefore(buildAjaxLoginProcessingFilter(), UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(buildJwtTokenAuthenticationProcessingFilter(),
 						UsernamePasswordAuthenticationFilter.class);

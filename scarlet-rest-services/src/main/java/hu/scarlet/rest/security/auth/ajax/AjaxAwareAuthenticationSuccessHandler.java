@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hu.scarlet.rest.security.UserContext;
 import hu.scarlet.rest.security.token.JwtToken;
@@ -37,12 +36,11 @@ public class AjaxAwareAuthenticationSuccessHandler implements AuthenticationSucc
 
 	private static final Logger logger = LoggerFactory.getLogger(AjaxAwareAuthenticationSuccessHandler.class);
 
-	private final ObjectMapper mapper;
+	private final ObjectMapper mapper = new ObjectMapper();
 	private final JwtTokenFactory tokenFactory;
 
 	@Autowired
-	public AjaxAwareAuthenticationSuccessHandler(final ObjectMapper mapper, final JwtTokenFactory tokenFactory) {
-		this.mapper = mapper;
+	public AjaxAwareAuthenticationSuccessHandler(final JwtTokenFactory tokenFactory) {
 		this.tokenFactory = tokenFactory;
 	}
 

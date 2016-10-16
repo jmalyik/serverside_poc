@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -20,8 +21,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import hu.scarlet.rest.security.AuthMethodNotSupportedException;
 import hu.scarlet.rest.util.WebUtil;
@@ -39,14 +38,13 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
 	private final AuthenticationSuccessHandler successHandler;
 	private final AuthenticationFailureHandler failureHandler;
 
-	private final ObjectMapper objectMapper;
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	public AjaxLoginProcessingFilter(String defaultProcessUrl, AuthenticationSuccessHandler successHandler,
-			AuthenticationFailureHandler failureHandler, ObjectMapper mapper) {
+			AuthenticationFailureHandler failureHandler) {
 		super(defaultProcessUrl);
 		this.successHandler = successHandler;
 		this.failureHandler = failureHandler;
-		this.objectMapper = mapper;
 	}
 
 	@Override

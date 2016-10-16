@@ -171,7 +171,7 @@ public class ScarletRestServicesApplicationTests extends TestCase {
 		cl.put("scopes", Arrays.asList("admin", "paraszt"));
 		String compactJws = Jwts.builder().setIssuer(jwtSettings.getTokenIssuer()).setHeaderParam("typ", "JWT")
 				.setClaims(cl)
-				.signWith(SignatureAlgorithm.HS256, jwtSettings.getTokenSigningKey())
+				.signWith(SignatureAlgorithm.HS512, jwtSettings.getTokenSigningKey())
 				.compact();
 		logger.info(compactJws); // this is the output that must be use to
 									// authenticate
