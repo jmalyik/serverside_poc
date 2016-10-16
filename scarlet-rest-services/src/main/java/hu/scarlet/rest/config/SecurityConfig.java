@@ -53,10 +53,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	public static final String JWT_TOKEN_HEADER_PARAM = "X-Authorization";
 
+	// signup url
 	public static final String SIGNUP_ENTRY_POINT = "/auth/signup";
+	// login url, expects {username: username, password:pass} using ajax and
+	// http post
 	public static final String FORM_BASED_LOGIN_ENTRY_POINT = "/api/auth/login";
+	// everything under this requires JWT token
 	public static final String TOKEN_BASED_AUTH_ENTRY_POINT = "/api/**";
+	// token refresh entry point
 	public static final String TOKEN_REFRESH_ENTRY_POINT = "/auth/token";
+	// fethes the user descriptor
 	public static final String PROFILE_ENTRY_POINT = "/api/me";
 
 	@Autowired
