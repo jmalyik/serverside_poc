@@ -31,7 +31,7 @@ public class ScarletRestUserDetailsService implements UserDetailsService {
 					u.isEnabled(), 
 					true, // accountNonExpired
 					true, // credentialsNonExpired, 
-					true, // accountNonLocked, 
+					u.isLocked(), // accountNonLocked,
 					AuthorityUtils.createAuthorityList(role));
 		}else{
 			throw new UserNotFoundException(emailAddress);

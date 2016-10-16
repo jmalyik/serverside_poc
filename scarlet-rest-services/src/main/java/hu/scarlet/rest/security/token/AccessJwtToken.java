@@ -1,12 +1,10 @@
 package hu.scarlet.rest.security.token;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import io.jsonwebtoken.Claims;
 
 public class AccessJwtToken implements JwtToken {
 	private final String rawToken;
-	@JsonIgnore
+
 	private Claims claims;
 
 	protected AccessJwtToken(final String token, Claims claims) {

@@ -1,35 +1,138 @@
 package hu.scarlet;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import hu.scarlet.pers.model.User;
+import hu.scarlet.pers.model.UserService;
 import hu.scarlet.rest.config.ScarletRestApplication;
+import hu.scarlet.rest.config.SecurityConfig;
 import hu.scarlet.rest.security.JwtSettings;
+import hu.scarlet.rest.security.auth.ajax.AjaxLoginProcessingFilter;
+import hu.scarlet.rest.security.auth.ajax.LoginRequest;
+import hu.scarlet.rest.security.auth.ajax.SignUpRequest;
+import hu.scarlet.rest.util.WebUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.DefaultClaims;
+import junit.framework.TestCase;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestPropertySource(locations = "classpath:application.properties")
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = ScarletRestApplication.class)
-public class ScarletRestServicesApplicationTests {
+@WebAppConfiguration
+@ContextConfiguration(classes = { ScarletRestApplication.class })
+public class ScarletRestServicesApplicationTests extends TestCase {
+	private static final String TEST_PASSWORD = "alma";
+	private static final String TEST_USER = "john.smith@whatever.com";
+	private static final String TEST_USER_FIRSTNAME = "John";
+	private static final String TEST_USER_LASTNAME = "Smith";
+	@Autowired
+	private UserService userService;
 	@Autowired
 	private JwtSettings jwtSettings;
+	private MockMvc mockMvc;
+	private ObjectMapper requestMapper;
+	private ObjectMapper responseMapper;
+	private Logger logger = org.slf4j.LoggerFactory.getLogger(ScarletRestServicesApplicationTests.class);
 
-	Logger logger = org.slf4j.LoggerFactory.getLogger(ScarletRestServicesApplicationTests.class);
+	@Autowired
+	private WebApplicationContext context;
+
+	@Autowired
+	private AjaxLoginProcessingFilter loginFilter;
+
+	@Before
+	@Override
+	public void setUp() {
+		// setting up mock mvc
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).
+				addFilter(loginFilter, SecurityConfig.FORM_BASED_LOGIN_ENTRY_POINT).build();
+		requestMapper = new ObjectMapper();
+		requestMapper.enableDefaultTyping(DefaultTyping.OBJECT_AND_NON_CONCRETE, As.PROPERTY);
+		requestMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+		responseMapper = new ObjectMapper();
+		responseMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+	}
+
 	@Test
-	public void generateJWTKey() {
+	public void test1SignUp() throws Exception {
+		MockHttpServletRequestBuilder postReq = MockMvcRequestBuilders.post(SecurityConfig.SIGNUP_ENTRY_POINT)
+				.contentType(MediaType.APPLICATION_JSON_UTF8);
+		userService.deleteUserByEmailAddress(TEST_USER);
+		SignUpRequest request = new SignUpRequest(TEST_USER, TEST_PASSWORD, false);
+		request.setFirstName(TEST_USER_FIRSTNAME);
+		request.setLastName(TEST_USER_LASTNAME);
+		String jsonReq = requestMapper.writeValueAsString(request);
+		logger.debug("Request: {}", jsonReq);
+		postReq.content(jsonReq);
+		MvcResult result = this.mockMvc
+				.perform(postReq.accept(MediaType.APPLICATION_JSON_UTF8))
+				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+				.andReturn();
+		logger.debug(result.getResponse().getContentAsString());
+		User u = userService.getUserByEmailAddress(TEST_USER);
+		assertNotNull(u);
+		assertEquals(TEST_USER, u.getEmailAddress());
+		assertEquals(TEST_USER_FIRSTNAME, u.getFirstName());
+		assertEquals(TEST_USER_LASTNAME, u.getLastName());
+	}
+
+	@Test
+	public void test2SignIn() {
+		try {
+			MockHttpServletRequestBuilder postReq = MockMvcRequestBuilders
+					.post(SecurityConfig.FORM_BASED_LOGIN_ENTRY_POINT)
+					.contentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+			postReq.header(WebUtil.X_REQUESTED_WITH, WebUtil.XML_HTTP_REQUEST);
+			LoginRequest login = new LoginRequest(TEST_USER, TEST_PASSWORD);
+			String content = requestMapper.writeValueAsString(login);
+			logger.debug("signin req: {}", content);
+			postReq.content(content);
+			MvcResult result = this.mockMvc.perform(postReq.accept(MediaType.APPLICATION_JSON_UTF8))
+					.andExpect(status().isOk())
+					.andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE)).andReturn();
+			logger.debug(result.getResponse().getContentAsString());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			fail(e.getMessage());
+		}
+	}
+
+	@Test
+	public void test3GenerateJWTKey() {
 		Map<String, Object> map = new HashMap<>();
 		Claims cl = new DefaultClaims(map);
-		cl.setSubject("jozsef.malyik@gmail.com");
+		cl.setSubject(TEST_USER);
 		cl.put("scopes", Arrays.asList("admin", "paraszt"));
 		String compactJws = Jwts.builder().setIssuer(jwtSettings.getTokenIssuer()).setHeaderParam("typ", "JWT")
 				.setClaims(cl)
@@ -47,7 +150,6 @@ public class ScarletRestServicesApplicationTests {
 		 * template: X-Authorization: Bearer<space><compactJws>
 		 * 
 		 */
-
 	}
 
 }

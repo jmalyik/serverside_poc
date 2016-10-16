@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,10 +17,16 @@ import hu.scarlet.pers.model.User;
 import hu.scarlet.pers.model.UserService;
 import junit.framework.TestCase;
 
+/**
+ * 
+ * @author jmalyik
+ *
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = MongoConfig.class)
 @TestPropertySource("classpath:application-test.properties")
 public class ScarletPersMongoApplicationTests extends TestCase {
+	private Logger logger = LoggerFactory.getLogger(ScarletPersMongoApplicationTests.class);
 	private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 	@Autowired
 	private UserService userService;
@@ -28,37 +36,55 @@ public class ScarletPersMongoApplicationTests extends TestCase {
 	 */
 	@Test
 	public void testCreateJohnDoe() {
+		if(userService.getUserByEmailAddress("jd@foobar.hu") == null){
 		User user = userService.createNew();
 		user.setFirstName("john");
 		user.setLastName("doe");
-		user.setEmailAddress("jd" + System.currentTimeMillis() + "@foobar.hu");
-		// a password-ot bcrypt-tel encode-olva kell betárolni
+		user.setEmailAddress("jd@foobar.hu");
+			// a password-ot bcrypt-tel encode-olva kell betárolni
 		user.setPassword(encoder.encode("alma"));
-		// legalább egy role-nak lennie kell
+			// legalább egy role-nak lennie kell
 		user.setRoles(Arrays.asList("Users"));
 		userService.save(user);
+		}else{
+			logger.info("User jd@foobar.hu already exists");
+		}
 	}
 
 	@Test
 	public void testCreateListUpdateAndDeleteUser() {
-		assertEquals(0, userService.findAll().size());
+		removeUser("xxx@foobar.hu");
+		removeUser("xxy@foobar.hu");
 		User user = userService.createNew();
 		user.setFirstName("jozsef");
 		user.setLastName("malyik");
 		user.setEmailAddress("xxx@foobar.hu");
 		userService.save(user);
 
-		assertEquals(1, userService.findAll().size());
-		assertEquals("xxx@foobar.hu", userService.findAll().get(0).getEmailAddress());
+		User xxx = userService.getUserByEmailAddress("xxx@foobar.hu");
+		assertNotNull(xxx);
+		assertEquals("jozsef", xxx.getFirstName());
+		assertEquals("malyik", xxx.getLastName());
+		assertEquals("xxx@foobar.hu", xxx.getEmailAddress());
+		xxx.setEmailAddress("xxy@foobar.hu");
+		userService.update(xxx);
 
-		User u = userService.getUserByEmailAddress("xxx@foobar.hu");
-		u.setEmailAddress("xxy@foobar.hu");
-		userService.update(u);
+		xxx = userService.getUserByEmailAddress("xxx@foobar.hu");
+		assertNull(xxx);
+		User xxy = userService.getUserByEmailAddress("xxy@foobar.hu");
 
-		assertEquals(1, userService.findAll().size());
-		assertEquals("xxy@foobar.hu", userService.findAll().get(0).getEmailAddress());
+		assertNotNull(xxy);
+		assertEquals("jozsef", xxy.getFirstName());
+		assertEquals("malyik", xxy.getLastName());
+		assertEquals("xxy@foobar.hu", xxy.getEmailAddress());
 
 		userService.deleteUserByEmailAddress("xxy@foobar.hu");
-		assertEquals(0, userService.findAll().size());
+	}
+
+	private void removeUser(String email) {
+		User u = userService.getUserByEmailAddress(email);
+		if (u != null) {
+			userService.deleteUserByEmailAddress(email);
+		}
 	}
 }

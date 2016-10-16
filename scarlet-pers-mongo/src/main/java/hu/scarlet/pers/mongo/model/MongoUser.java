@@ -25,6 +25,7 @@ public class MongoUser implements User {
 	private boolean enabled;
 	private boolean deleted;
 	private boolean company;
+	private boolean locked;
 	private List<String> roles;
 
 	@Override
@@ -121,5 +122,13 @@ public class MongoUser implements User {
 
 	public void setRoles(List<String> roles) {
 		this.roles = roles;
+	}
+
+	public boolean isLocked() {
+		return locked;
+	}
+
+	public void setLocked(boolean locked) {
+		this.locked = locked;
 	}
 }

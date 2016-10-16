@@ -12,7 +12,7 @@ public interface User {
 	public static final String ROLE_COMPANY_USER = "COMPANY_USER";
 	public static final String ROLE_USER = "USER";
 	public static final String ROLE_ADMIN = "ADMIN";
-	
+
 	public String getId();
 	
 	public void setId(String id);
@@ -48,4 +48,6 @@ public interface User {
 	public List<String> getRoles();
 
 	public void setRoles(List<String> roles);
+
+	public boolean isLocked();
 }

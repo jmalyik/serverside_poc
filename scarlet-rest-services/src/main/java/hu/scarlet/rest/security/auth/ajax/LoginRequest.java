@@ -1,8 +1,5 @@
 package hu.scarlet.rest.security.auth.ajax;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Model intended to be used for AJAX based authentication.
  * 
@@ -12,20 +9,37 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 
 public class LoginRequest {
-	private String username;
+
+	private String emailAddress;
 	private String password;
 
-	@JsonCreator
-	public LoginRequest(@JsonProperty("username") String username, @JsonProperty("password") String password) {
-		this.username = username;
+	public LoginRequest() {
+
+	}
+
+	public LoginRequest(String emailAddress, String password) {
+		this.emailAddress = emailAddress;
 		this.password = password;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getEmailAddress() {
+		return emailAddress;
 	}
 
 	public String getPassword() {
 		return password;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	@Override
+	public String toString() {
+		return "LoginRequest [emailAddress=" + emailAddress + ", password=" + password.hashCode() + " (hashcode)]";
 	}
 }

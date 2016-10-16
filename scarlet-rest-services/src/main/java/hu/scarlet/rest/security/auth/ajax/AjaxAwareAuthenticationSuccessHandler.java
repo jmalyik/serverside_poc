@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -32,6 +34,9 @@ import hu.scarlet.rest.security.token.JwtTokenFactory;
  */
 @Component
 public class AjaxAwareAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
+	private static final Logger logger = LoggerFactory.getLogger(AjaxAwareAuthenticationSuccessHandler.class);
+
 	private final ObjectMapper mapper;
 	private final JwtTokenFactory tokenFactory;
 
@@ -45,6 +50,7 @@ public class AjaxAwareAuthenticationSuccessHandler implements AuthenticationSucc
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 		UserContext userContext = (UserContext) authentication.getPrincipal();
+		logger.debug("Authentication was successful. Logged in user: {}", userContext.getUsername());
 
 		JwtToken accessToken = tokenFactory.createAccessJwtToken(userContext);
 		JwtToken refreshToken = tokenFactory.createRefreshToken(userContext);

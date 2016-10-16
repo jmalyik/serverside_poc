@@ -41,7 +41,7 @@ import hu.scarlet.rest.security.token.TokenExtractor;
  *
  */
 @Configuration
-@ComponentScan(basePackages = { "hu.scarlet.config", "hu.scarlet.rest.security", "hu.scarlet.rest.web" })
+@ComponentScan(basePackages = { "hu.scarlet.config", "hu.scarlet.rest" })
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -54,9 +54,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	ScarletRestUserDetailsService userDetailsService;
 
 	public static final String JWT_TOKEN_HEADER_PARAM = "X-Authorization";
+
+	public static final String SIGNUP_ENTRY_POINT = "/api/auth/signup";
 	public static final String FORM_BASED_LOGIN_ENTRY_POINT = "/api/auth/login";
 	public static final String TOKEN_BASED_AUTH_ENTRY_POINT = "/api/**";
 	public static final String TOKEN_REFRESH_ENTRY_POINT = "/api/auth/token";
+	public static final String PROFILE_ENTRY_POINT = "/api/me";
 
 	@Autowired
 	private RestAuthenticationEntryPoint authenticationEntryPoint;
@@ -124,7 +127,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers(TOKEN_REFRESH_ENTRY_POINT).permitAll() // Token
 																	// refresh
 																	// end-point
-
+				.antMatchers(SIGNUP_ENTRY_POINT).permitAll()
 				.and().authorizeRequests().antMatchers(TOKEN_BASED_AUTH_ENTRY_POINT).authenticated() // Protected
 																										// API
 																										// End-points
