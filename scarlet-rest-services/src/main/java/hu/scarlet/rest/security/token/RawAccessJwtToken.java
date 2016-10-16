@@ -42,6 +42,11 @@ public class RawAccessJwtToken implements JwtToken {
 	}
 
 	@Override
+	public String toString() {
+		return "RawAccessJwtToken [token=" + token + "]";
+	}
+
+	@Override
 	public String getToken() {
 		return token;
 	}
