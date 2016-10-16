@@ -39,8 +39,6 @@ import hu.scarlet.pers.model.UserService;
 import hu.scarlet.rest.config.ScarletRestApplication;
 import hu.scarlet.rest.config.SecurityConfig;
 import hu.scarlet.rest.security.JwtSettings;
-import hu.scarlet.rest.security.auth.JwtTokenAuthenticationProcessingFilter;
-import hu.scarlet.rest.security.auth.ajax.AjaxLoginProcessingFilter;
 import hu.scarlet.rest.security.auth.ajax.LoginRequest;
 import hu.scarlet.rest.security.auth.ajax.SignUpRequest;
 import hu.scarlet.rest.util.WebUtil;
@@ -51,7 +49,7 @@ import io.jsonwebtoken.impl.DefaultClaims;
 import junit.framework.TestCase;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:application-test.properties")
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = { ScarletRestApplication.class })
@@ -71,12 +69,6 @@ public class ScarletRestServicesApplicationTests extends TestCase {
 
 	@Autowired
 	private WebApplicationContext context;
-
-	@Autowired
-	private JwtTokenAuthenticationProcessingFilter jwtFilter;
-
-	@Autowired
-	private AjaxLoginProcessingFilter loginFilter;
 
 	@Before
 	@Override
@@ -148,7 +140,6 @@ public class ScarletRestServicesApplicationTests extends TestCase {
 			assertNotNull("Failed to sign in", loginResponse);
 			MockHttpServletRequestBuilder getReq = MockMvcRequestBuilders.get(SecurityConfig.PROFILE_ENTRY_POINT)
 					.accept(MediaType.APPLICATION_JSON);
-			getReq.header(WebUtil.X_REQUESTED_WITH, WebUtil.XML_HTTP_REQUEST);
 			getReq.header(SecurityConfig.JWT_TOKEN_HEADER_PARAM,
 					String.format("Bearer %s", loginResponse.getToken()));
 			logger.debug("---> fetching profile data");
